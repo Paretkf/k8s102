@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  # ชื่อ
+  name: nginx
+  # deploy ที่ไหน
+  namespace: basic-k8s
+  labels:
+    # key = name
+    # val = nginx
+    name: nginx
+spec:
+  # มี pod เกิดขึ้น 1 pod
+  replicas: 2
+  # เมื่อ deployment นี้ถูก deploy จะ recreate
+  strategy:
+    type: Recreate
+  # ใช้ container กับ template ที่ match กัน
+  selector:
+    matchLabels:
+      name: nginx
+  template:
+    metadata:
+      labels:
+        name: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: 3dsinteractive/nginx:1.12
+        # ก่อนจะ deploy จะ pull เสมอ
+        imagePullPolicy: Always
+        resources:
+          # ก่อนจะ deploy ใช้ resource
+          requests:
+            memory: 500Mi
+            # 1 core cpu = 1000 m
+            cpu: 200m
+          limits:
+            # memory ถ้าใช้เกินจะถูก kill แล้วสร้าง container ใหม่
+            memory: 1Gi
+            cpu: 500m
+        # การตรวจสอบว่า container ยังทำงานหรือไม่
+        livenessProbe:
+          # แบบ tcp socket
+          tcpSocket:
+            port: 8080
+          initialDelaySeconds: 5
+          timeoutSeconds: 1
+          periodSeconds: 300
+        # การตรวจสอบว่า container พร้อมหรือยังตอน start container
+        # ถ้ายังไม่พร้อมจะทำการ block request
+        readinessProbe:
+          tcpSocket:
+            port: 8080
+          initialDelaySeconds: 5
+          timeoutSeconds: 1
+          periodSeconds: 30
+          # probe fail มากกว่า 5 ครั้ง
+          failureThreshold: 5
+        ports:
+        - containerPort: 8080
+          name: ngx8080
+        - containerPort: 8443
+          name: ngx8443

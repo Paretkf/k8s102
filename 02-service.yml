@@ -1,0 +1,23 @@
+# สร้าง service เพื่ิิอให้ access ได้แค่ใน cluster เท่านั้น
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx
+  namespace: basic-k8s
+  labels:
+    name: nginx
+spec:
+  # ไปหา pod ที่มี name เป็น nginx
+  selector:
+    name: nginx
+  ports:
+  - name: ngx8080
+    # port ของ service
+    port: 8080
+    # port ของ pod
+    targetPort: 8080
+    protocol: TCP
+  - name: ngx8443
+    port: 8443
+    targetPort: 8443
+    protocol: TCP

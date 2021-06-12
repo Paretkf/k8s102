@@ -1,0 +1,20 @@
+apiVersion: extensions/v1beta1
+# object เป็น Ingress
+kind: Ingress
+metadata:
+  name: ingress
+  namespace: basic-k8s
+  labels:
+    name: ingress
+spec:
+  rules:
+  # Domain อะไรเข้ามาผ่าน kubernetes.docker.internal
+  - host: kubernetes.docker.internal
+    http:
+      paths:
+      # / ให้ forward ไปไหน
+      - path: /
+        # / = backend 
+        backend:
+          serviceName: nginx
+          servicePort: 8080
